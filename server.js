@@ -10,7 +10,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // 读取食材热量数据
 let foodHeatData = {};
-fs.createReadStream('recipe/FoodHeat.csv')
+fs.createReadStream('./recipe/FoodHeat.csv')
   .pipe(csv())
   .on('data', (row) => {
     const { food, heat } = row;
