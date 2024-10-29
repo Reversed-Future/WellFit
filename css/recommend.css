@@ -1,0 +1,92 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f8f9fa;
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  h2 {
+    color: #333;
+  }
+  
+  .summary {
+    background-color: #e9ecef;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+  }
+  
+  .meal-container {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .meal-box {
+    flex: 1;
+    margin: 0 10px;
+    background-color: #f1f1f1;
+    border-radius: 5px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .calories-range {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+  }
+  
+  .recipes-list {
+    flex-grow: 1; /* 使菜谱列表填充可用空间 */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+  
+  .recipe-item {
+    padding: 10px;
+    margin: 5px 0;
+    background-color: #ffffff;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+
+  .summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  h1 {
+    color: #333;
+    flex: 1; /* 占据剩余空间 */
+    margin: 0;
+  }
+  
+  .back-button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+  }
+  
+  .back-button:hover {
+    background-color: #45a049;
+  }
+  

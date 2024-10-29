@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recommended Recipes</title>
+  <link rel="stylesheet" href="css/recommend.css"> <!-- 链接到外部 CSS 文件 -->
+</head>
+<body>
+  <div class="container">
+    <h1>Your Recommended Recipes</h1>
+    <div class="summary">
+      <p>Your TDEE is: <span id="tdeeValue"></span> kcal</p>
+      <p>Your Fitness Goal is: <span id="goalValue"></span></p>
+      <a href="index.html" class="back-button">Return to Home</a>
+    </div>
+
+    <div class="meal-container">
+      <div class="meal-box">
+        <h2>Breakfast</h2>
+        <div class="calories-range">
+          <p>Recommended Calories Range: <span id="breakfastRange"></span> kcal</p>
+        </div>
+        <div class="recipes-list" id="breakfastRecipes"></div>
+      </div>
+      
+      <div class="meal-box">
+        <h2>Lunch</h2>
+        <div class="calories-range">
+          <p>Recommended Calories Range: <span id="lunchRange"></span> kcal</p>
+        </div>
+        <div class="recipes-list" id="lunchRecipes"></div>
+      </div>
+      
+      <div class="meal-box">
+        <h2>Dinner</h2>
+        <div class="calories-range">
+          <p>Recommended Calories Range: <span id="dinnerRange"></span> kcal</p>
+        </div>
+        <div class="recipes-list" id="dinnerRecipes"></div>
+      </div>
+      
+
+      
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 获取 URL 中的参数
+    function getParameterByName(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+
+    // 加载推荐菜谱
+    async function loadRecipes() {
+      const tdee = getParameterByName('tdee');
+      const fitnessGoal = getParameterByName('fitnessGoal');  // 获取健身目标
+
+      if (tdee) {
+        let totalCalories = parseInt(tdee);
+
+        // 根据健身目标调整 TDEE
+        if (fitnessGoal === 'loseWeight') {
+          totalCalories *= 0.8;  // 减脂：乘以 0.8
+        } else if (fitnessGoal === 'gainMuscle') {
+          totalCalories *= 1.2;  // 增肌：乘以 1.2
+        }
+        // 保持体型时，TDEE 不变
+
+        // 计算每餐的推荐热量范围
+        const breakfastCaloriesMin = Math.round(totalCalories * 0.25);
+        const breakfastCaloriesMax = Math.round(totalCalories * 0.30);
+        const lunchCaloriesMin = Math.round(totalCalories * 0.35);
+        const lunchCaloriesMax = Math.round(totalCalories * 0.40);
+        const dinnerCaloriesMin = Math.round(totalCalories * 0.30);
+        const dinnerCaloriesMax = Math.round(totalCalories * 0.40);
+
+        // 显示 TDEE、健身目标 和 每餐的推荐热量范围
+        document.getElementById('tdeeValue').innerText = Math.round(totalCalories);
+        document.getElementById('breakfastRange').innerText = `${breakfastCaloriesMin} - ${breakfastCaloriesMax}`;
+        document.getElementById('lunchRange').innerText = `${lunchCaloriesMin} - ${lunchCaloriesMax}`;
+        document.getElementById('dinnerRange').innerText = `${dinnerCaloriesMin} - ${dinnerCaloriesMax}`;
+        
+        // 显示健身目标
+        let goalDisplay = fitnessGoal.charAt(0).toUpperCase() + fitnessGoal.slice(1).replace(/([A-Z])/g, ' $1'); // 格式化为 "Gain Muscle"
+        document.getElementById('goalValue').innerText = goalDisplay;
+
+
+        // 请求每餐的推荐菜谱
+        await loadMealSuggestions('breakfast', breakfastCaloriesMin, breakfastCaloriesMax);
+        await loadMealSuggestions('lunch', lunchCaloriesMin, lunchCaloriesMax);
+        await loadMealSuggestions('dinner', dinnerCaloriesMin, dinnerCaloriesMax);
+      } else {
+        document.getElementById('recommendations').innerHTML = `<p>Error: No TDEE value provided.</p>`;
+      }
+    }
+
+    // 加载具体餐点的推荐菜谱
+    async function loadMealSuggestions(mealType, minCalories, maxCalories) {
+      const response = await fetch(`/get-recipes?mealType=${mealType}&minCalories=${minCalories}&maxCalories=${maxCalories}`);
+      const recipes = await response.json();
+
+      // 添加每餐推荐菜谱到页面
+      const recipesList = document.getElementById(`${mealType}Recipes`);
+      recipes.forEach(recipe => {
+        const recipeItem = document.createElement('div');
+        recipeItem.classList.add('recipe-item');
+        recipeItem.innerHTML = `<p>${recipe.name} - ${Math.round(recipe.calories)} kcal</p>`;
+        recipesList.appendChild(recipeItem);
+      });
+    }
+
+    // 页面加载后运行
+    window.onload = loadRecipes;
+  </script>
+</body>
+</html>
