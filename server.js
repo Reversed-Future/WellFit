@@ -71,7 +71,7 @@ app.post('/submit-data', (req, res) => {
   // 计算 TDEE
   const tdee = calculateTDEE(weight, height, age, gender, activity);
 
-  // 根据健身目标调整建议摄取的营养素
+  // 根据健身目标调整建议摄取的营养素 
   let adjustedCalories;
   if (fitnessGoal === 'loseWeight') {
     adjustedCalories = tdee * 0.8; // 减脂 80%
