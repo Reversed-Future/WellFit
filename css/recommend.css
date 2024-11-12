@@ -49,7 +49,7 @@ body {
   }
   
   .recipes-list {
-    flex-grow: 1; /* 使菜谱列表填充可用空间 */
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -72,7 +72,7 @@ body {
   
   h1 {
     color: #333;
-    flex: 1; /* 占据剩余空间 */
+    flex: 1;
     margin: 0;
   }
   

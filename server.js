@@ -161,6 +161,29 @@ app.get('/get-recipes', async (req, res) => {
   res.json(recipes);
 });
 
+
+// 路由：处理食材模糊搜索请求
+app.get('/search-calories', (req, res) => {
+  const searchQuery = req.query.ingredient.toLowerCase();
+  const results = [];
+
+  // 读取 CSV 文件并匹配食材名称
+  fs.createReadStream('./recipe/FoodHeat.csv')
+    .pipe(csv())
+    .on('data', (row) => {
+      const ingredientName = row['食材'].toLowerCase();
+      if (ingredientName.includes(searchQuery)) {
+        results.push({
+          name: row['食材'],
+          calories: row['能量kcal/100g']
+        });
+      }
+    })
+    .on('end', () => {
+      res.json(results.length > 0 ? results : { message: 'No matching ingredients found' });
+    });
+});
+
 // 启动服务器
 app.listen(3000, () => {
   console.log('Server running on port 3000');
