@@ -2,7 +2,6 @@ async function searchCalories() {
     const ingredient = document.getElementById('ingredientInput').value.trim();
     const resultContainer = document.getElementById('resultsContainer');
     
-    // 清空之前的搜索结果
     resultContainer.innerHTML = '';
   
     if (!ingredient) {

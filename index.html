@@ -7,46 +7,46 @@
   <link rel="stylesheet" href="./css/index.css">
 </head>
 <body>
-  <h1>TDEE 计算器</h1>
+  <h1>TDEE Calculator</h1>
   <!-- 表单 -->
   <form onsubmit="event.preventDefault(); calculateTDEE();">
-    <label for="age">年龄:</label>
+    <label for="age">Age:</label>
     <input type="number" id="age" name="age" required><br>
 
-    <label for="weight">体重(kg):</label>
+    <label for="weight">Weight(kg):</label>
     <input type="number" id="weight" name="weight" required><br>
 
-    <label for="height">身高(cm):</label>
+    <label for="height">Height(cm):</label>
     <input type="number" id="height" name="height" required><br>
 
-    <label for="gender">性别:</label>
+    <label for="gender">Gender:</label>
     <select id="gender" name="gender" required>
-      <option value="male">男</option>
-      <option value="female">女</option>
+      <option value="male">Male</option>
+      <option value="female">Female</option>
     </select><br>
 
-    <label for="activity">活动水平:</label>
+    <label for="activity">Activity Level:</label>
     <select id="activity" name="activity" required>
-      <option value="1.2">久坐</option>
-      <option value="1.375">轻度活动</option>
-      <option value="1.55">中度活动</option>
-      <option value="1.725">高度活动</option>
-      <option value="1.9">非常活跃</option>
+      <option value="1.2">Sedentariness</option>
+      <option value="1.375">Light activity</option>
+      <option value="1.55">Moderate activity</option>
+      <option value="1.725">High activity</option>
+      <option value="1.9">Very active</option>
     </select><br>
 
-    <label for="bodyFat">体脂率(%):</label>
-    <input type="number" id="bodyFat" name="bodyFat" placeholder="可选，如果知道您的体脂率，会令计算结果更准确"><br>
+    <label for="bodyFat">Body Fat Rate(%):</label>
+    <input type="number" id="bodyFat" name="bodyFat" placeholder="Optionally, knowing it will make the calculation more accurate"><br>
 
-    <label for="fitnessGoal">健身目标（用于计算建议您摄取的热量）:</label>
+    <label for="fitnessGoal">Fitness goals (to calculate your recommended calories):</label>
     <select name="fitnessGoal" id="fitnessGoal" required>
-      <option value="loseWeight">减脂（每天摄取TDEE×80%的热量）</option>
-      <option value="maintain">保持体型（每天摄取TDEE×100%的热量）</option>
-      <option value="gainMuscle">增肌（每天摄取TDEE×120%的热量）</option>
+      <option value="loseWeight">Fat reduction (TDEE×80% of calories per day)</option>
+      <option value="maintain">Stay in shape (TDEE x 100% calories per day)</option>
+      <option value="gainMuscle">Gain muscle (TDEE×120% calories per day)</option>
     </select><br>
 
-    <button type="submit">计算 TDEE</button>
+    <button type="submit">Calculate TDEE</button>
 
-    <button class="search-btn" onclick="window.location.href='search.html'">查询食材热量</button>
+    <button class="search-btn" onclick="window.location.href='search.html'">Check ingredient calories</button>
 
 
   </form>
