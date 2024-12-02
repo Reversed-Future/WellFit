@@ -184,6 +184,46 @@ app.get('/search-calories', (req, res) => {
     });
 });
 
+// 路由：处理食谱模糊搜索请求
+app.get('/search-recipes', (req, res) => {
+  const searchQuery = req.query.query.toLowerCase();
+  const results = [];
+  const meals = ['breakfast', 'lunch', 'dinner']; // 假设有三类菜谱：早餐、午餐和晚餐
+
+  // 遍历所有的 meal 类型（早餐、午餐、晚餐）
+  meals.forEach(meal => {
+    const filePath = `./recipe/${meal}/${meal}.csv`; // 每个meal对应一个csv文件
+
+    // 读取 CSV 文件并匹配菜谱名称
+    fs.createReadStream(filePath)
+      .pipe(csv())
+      .on('data', (row) => {
+        const recipeName = row['Recipe Name'].toLowerCase(); // 假设列名为 '菜谱名'
+        
+        // 如果菜谱名称包含搜索查询，则添加到结果中
+        if (recipeName.includes(searchQuery)) {
+          results.push({
+            mealType: meal, // 早餐、午餐、晚餐
+            recipeName: row['Recipe Name'], // 菜谱名称
+            calories: row['Total Calories'] // 热量
+          });
+        }
+      })
+      .on('end', () => {
+        // 如果有多个 meal 文件，所有的 'end' 事件都可能同时触发，这会导致响应重复
+        // 所以我们可以在所有的 CSV 文件读取完成后返回响应
+        if (meal === meals[meals.length - 1]) {
+          res.json(results.length > 0 ? results : { message: 'No matching recipes found' });
+        }
+      })
+      .on('error', (err) => {
+        console.error(`Error reading file ${filePath}:`, err);
+        res.status(500).json({ message: 'Error reading recipe files' });
+      });
+  });
+});
+
+
 // 启动服务器
 app.listen(3000, () => {
   console.log('Server running on port 3000');

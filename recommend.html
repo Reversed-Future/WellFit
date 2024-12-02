@@ -8,51 +8,61 @@
 </head>
 <body>
   <div class="container">
-    <h1>Your Recommended Recipes</h1>
+    <h1 id="pageTitle" data-en="Your Recommended Recipes" data-zh="您的推荐食谱"></h1>
     <div class="summary">
-      <p>Your TDEE is: <span id="tdeeValue"></span> kcal</p>
-      <p>Your Fitness Goal is: <span id="goalValue"></span></p>
-      <a href="index.html" class="back-button">Return to Home</a>
+      <p id="tdeeLabel" data-en="Your TDEE is:" data-zh="您的TDEE是：">
+        <span id="tdeeValue"></span> kcal
+      </p>
+      <p id="goalLabel" data-en="Your Fitness Goal is:" data-zh="你的健身目标是：">
+        <span id="goalValue"></span>
+      </p>
+      <a href="index.html" class="back-button" data-en="Return to Home" data-zh="返回主页"></a>
     </div>
 
     <div class="meal-container">
       <!-- 早餐 -->
       <div class="meal-box">
-        <h2>Breakfast</h2>
+        <h2 id="breakfastTitle" data-en="Breakfast" data-zh="早餐"></h2>
         <div class="calories-range">
-          <p>Recommended Calories Range: <span id="breakfastRange"></span> kcal</p>
+          <p id="breakfastCalories" data-en="Recommended Calories Range:" data-zh="推荐热量范围：">
+            <span id="breakfastRange"></span> kcal
+          </p>
         </div>
         <div class="recipes-list" id="breakfastRecipes"></div>
       </div>
-      
+
       <!-- 午餐 -->
       <div class="meal-box">
-        <h2>Lunch</h2>
+        <h2 id="lunchTitle" data-en="Lunch" data-zh="午餐"></h2>
         <div class="calories-range">
-          <p>Recommended Calories Range: <span id="lunchRange"></span> kcal</p>
+          <p id="lunchCalories" data-en="Recommended Calories Range:" data-zh="推荐热量范围：">
+            <span id="lunchRange"></span> kcal
+          </p>
         </div>
         <div class="recipes-list" id="lunchRecipes"></div>
       </div>
-      
+
       <!-- 晚餐 -->
       <div class="meal-box">
-        <h2>Dinner</h2>
+        <h2 id="dinnerTitle" data-en="Dinner" data-zh="晚餐"></h2>
         <div class="calories-range">
-          <p>Recommended Calories Range: <span id="dinnerRange"></span> kcal</p>
+          <p id="dinnerCalories" data-en="Recommended Calories Range:" data-zh="推荐热量范围：">
+            <span id="dinnerRange"></span> kcal
+          </p>
         </div>
         <div class="recipes-list" id="dinnerRecipes"></div>
       </div>
     </div>
 
     <!-- 确定选择按钮 -->
-    <button onclick="confirmSelection()">Confirm Selection</button>
+    <button id="confirmButton" data-en="Confirm Selection" data-zh="确认选择" onclick="confirmSelection()"></button>
 
     <!-- 选择结果弹窗 -->
     <div id="confirmationModal" class="modal">
       <div class="modal-content">
-        <h3>Final Selected Recipes</h3>
+        <h3 id="modalTitle" data-en="Final Selected Recipes" data-zh="最终选择的食谱"></h3>
         <p id="selectedRecipes"></p>
-        <button onclick="closeModal()">Close</button>
+        <button id="closeButton" data-en="Close" data-zh="关闭" onclick="closeModal()"></button>
       </div>
     </div>
   </div>
@@ -65,9 +75,25 @@
       return urlParams.get(name);
     }
 
+    function switchLanguage(language) {
+      const elements = document.querySelectorAll('[data-en][data-zh]');
+      elements.forEach(el => {
+        if (el.children.length > 0) {
+          // 只修改不包含动态内容的部分
+          el.firstChild.nodeValue = language === 'zh' ? el.getAttribute('data-zh') : el.getAttribute('data-en');
+        } else {
+          el.innerText = language === 'zh' ? el.getAttribute('data-zh') : el.getAttribute('data-en');
+        }
+      });
+    }
+
     async function loadRecipes() {
       const tdee = getParameterByName('tdee');
-      const fitnessGoal = getParameterByName('fitnessGoal'); 
+      const fitnessGoal = getParameterByName('fitnessGoal');
+      const language = getParameterByName('language') || 'en';
+
+      // 切换语言
+      switchLanguage(language);
 
       if (tdee) {
         let totalCalories = parseInt(tdee);
@@ -90,14 +116,18 @@
         document.getElementById('lunchRange').innerText = `${lunchCaloriesMin} - ${lunchCaloriesMax}`;
         document.getElementById('dinnerRange').innerText = `${dinnerCaloriesMin} - ${dinnerCaloriesMax}`;
 
-        let goalDisplay = fitnessGoal.charAt(0).toUpperCase() + fitnessGoal.slice(1).replace(/([A-Z])/g, ' $1');
+        const goalDisplay = language === 'zh' 
+          ? (fitnessGoal === 'loseWeight' ? '减脂' : '增肌') 
+          : (fitnessGoal === 'loseWeight' ? 'Lose Weight' : 'Gain Muscle');
         document.getElementById('goalValue').innerText = goalDisplay;
 
         await loadMealSuggestions('breakfast', breakfastCaloriesMin, breakfastCaloriesMax);
         await loadMealSuggestions('lunch', lunchCaloriesMin, lunchCaloriesMax);
         await loadMealSuggestions('dinner', dinnerCaloriesMin, dinnerCaloriesMax);
       } else {
-        document.getElementById('recommendations').innerHTML = `<p>Error: No TDEE value provided.</p>`;
+        document.querySelector('.summary').innerHTML = language === 'zh' 
+          ? '<p>错误：未提供 TDEE 值。</p>' 
+          : '<p>Error: No TDEE value provided.</p>';
       }
     }
 
@@ -132,18 +162,28 @@
     }
 
     function confirmSelection() {
-      if (selectedRecipes.breakfast && selectedRecipes.lunch && selectedRecipes.dinner) {
-        const confirmationText = `
-          Breakfast: ${selectedRecipes.breakfast} <br>
-          Lunch: ${selectedRecipes.lunch} <br>
-          Dinner: ${selectedRecipes.dinner}
-        `;
-        document.getElementById("selectedRecipes").innerHTML = confirmationText;
-        document.getElementById("confirmationModal").style.display = "block";
-      } else {
-        alert("Please select one recipe for each meal.");
-      }
-    }
+  const language = getParameterByName('language') || 'en';
+  const mealLabels = {
+    breakfast: language === 'zh' ? '早餐' : 'Breakfast',
+    lunch: language === 'zh' ? '午餐' : 'Lunch',
+    dinner: language === 'zh' ? '晚餐' : 'Dinner',
+  };
+
+  if (selectedRecipes.breakfast && selectedRecipes.lunch && selectedRecipes.dinner) {
+    const confirmationText = `
+      ${mealLabels.breakfast}: ${selectedRecipes.breakfast} <br>
+      ${mealLabels.lunch}: ${selectedRecipes.lunch} <br>
+      ${mealLabels.dinner}: ${selectedRecipes.dinner}
+    `;
+    document.getElementById("selectedRecipes").innerHTML = confirmationText;
+    document.getElementById("confirmationModal").style.display = "block";
+  } else {
+    alert(language === 'zh' 
+      ? "请为每顿饭选择一个食谱。" 
+      : "Please select one recipe for each meal.");
+  }
+}
+
 
     function closeModal() {
       document.getElementById("confirmationModal").style.display = "none";
@@ -151,6 +191,5 @@
 
     window.onload = loadRecipes;
   </script>
-
 </body>
 </html>

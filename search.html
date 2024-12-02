@@ -3,19 +3,75 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ingredient Calorie Search</title>
+  <title data-en="Ingredient & Recipe Calorie Search" data-zh="食材与菜谱热量查询"></title>
   <link rel="stylesheet" href="css/search.css">
 </head>
 <body>
   <div class="container">
-    <h1>Ingredient Calorie Search</h1>
-    <div class="search-container">
-      <input type="text" id="ingredientInput" placeholder="Enter ingredient name" />
-      <button onclick="searchCalories()">Search</button>
+    <!-- 食材搜索区域 -->
+    <div class="search-section">
+      <h1 data-en="Ingredient Calorie Search" data-zh="食材热量查询"></h1>
+      <div class="search-container">
+        <input 
+          type="text" 
+          id="ingredientInput" 
+          placeholder="Enter ingredient name" 
+          data-en="Enter ingredient name" 
+          data-zh="输入食材名称" />
+        <button 
+          onclick="searchCalories()" 
+          data-en="Search" 
+          data-zh="搜索"></button>
+      </div>
+      <div id="resultsContainer" class="results-container"></div>
     </div>
-    <div id="resultsContainer" class="results-container"></div>
+
+    <!-- 菜谱搜索区域 -->
+    <div class="search-section">
+      <h1 data-en="Recipe Calorie Search" data-zh="菜谱热量查询"></h1>
+      <div class="search-container">
+        <input 
+          type="text" 
+          id="recipeInput" 
+          placeholder="Enter recipe name or ingredient" 
+          data-en="Enter recipe name or ingredient" 
+          data-zh="输入菜谱名称或食材" />
+        <button 
+          onclick="searchRecipes()" 
+          data-en="Search" 
+          data-zh="搜索"></button>
+      </div>
+      <div id="recipeResultsContainer" class="results-container"></div>
+    </div>
   </div>
-  
+
+  <script>
+    // 获取 URL 参数中的 language 值
+    function getLanguageFromUrl() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('language') || 'en';
+    }
+
+    // 切换语言功能
+    function switchLanguage(language) {
+      const elements = document.querySelectorAll('[data-en][data-zh]');
+      elements.forEach(el => {
+        if (el.tagName === 'INPUT') {
+          el.setAttribute('placeholder', language === 'zh' ? el.getAttribute('data-zh') : el.getAttribute('data-en'));
+        } else {
+          el.innerText = language === 'zh' ? el.getAttribute('data-zh') : el.getAttribute('data-en');
+        }
+      });
+    }
+
+    // 动态初始化页面语言
+    const language = getLanguageFromUrl();
+    document.documentElement.lang = language;
+    window.onload = () => {
+      switchLanguage(language);
+    };
+  </script>
+
   <script src="/search.js"></script>
 </body>
 </html>

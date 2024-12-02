@@ -26,7 +26,7 @@ body {
     margin-bottom: 20px;
   }
   
-  #ingredientInput {
+  #ingredientInput, #recipeInput {
     padding: 10px;
     font-size: 16px;
     border: 1px solid #ddd;
@@ -45,4 +45,20 @@ body {
     cursor: pointer;
   }
   
+  .back-button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    display: inline-block;
+    margin-top: 20px;
+  }
+  
+  .back-button:hover {
+    background-color: #45a049;
+  }
   

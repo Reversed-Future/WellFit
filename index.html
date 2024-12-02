@@ -3,56 +3,98 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TDEE Calculator</title>
+  <title>Well Fit</title>
   <link rel="stylesheet" href="./css/index.css">
 </head>
 <body>
-  <h1>TDEE Calculator</h1>
+  <h1>Well Fit</h1>
+
+  <!-- 语言切换按钮 -->
+  <div id="language-switcher">
+    <button id="btn-en" onclick="switchLanguage('en')">English</button>
+    <button id="btn-zh" onclick="switchLanguage('zh')">中文</button>
+  </div>
+
   <!-- 表单 -->
   <form onsubmit="event.preventDefault(); calculateTDEE();">
-    <label for="age">Age:</label>
+    <label for="age" data-en="Age:" data-zh="年龄：">Age:</label>
     <input type="number" id="age" name="age" required><br>
 
-    <label for="weight">Weight(kg):</label>
+    <label for="weight" data-en="Weight(kg):" data-zh="体重(公斤)：">Weight(kg):</label>
     <input type="number" id="weight" name="weight" required><br>
 
-    <label for="height">Height(cm):</label>
+    <label for="height" data-en="Height(cm):" data-zh="身高(厘米)：">Height(cm):</label>
     <input type="number" id="height" name="height" required><br>
 
-    <label for="gender">Gender:</label>
+    <label for="gender" data-en="Gender:" data-zh="性别：">Gender:</label>
     <select id="gender" name="gender" required>
-      <option value="male">Male</option>
-      <option value="female">Female</option>
+      <option value="male" data-en="Male" data-zh="男">Male</option>
+      <option value="female" data-en="Female" data-zh="女">Female</option>
     </select><br>
 
-    <label for="activity">Activity Level:</label>
+    <label for="activity" data-en="Activity Level:" data-zh="活动水平：">Activity Level:</label>
     <select id="activity" name="activity" required>
-      <option value="1.2">Sedentariness</option>
-      <option value="1.375">Light activity</option>
-      <option value="1.55">Moderate activity</option>
-      <option value="1.725">High activity</option>
-      <option value="1.9">Very active</option>
+      <option value="1.2" data-en="Sedentariness" data-zh="久坐">Sedentariness</option>
+      <option value="1.375" data-en="Light activity" data-zh="轻度活动">Light activity</option>
+      <option value="1.55" data-en="Moderate activity" data-zh="中度活动">Moderate activity</option>
+      <option value="1.725" data-en="High activity" data-zh="高强度活动">High activity</option>
+      <option value="1.9" data-en="Very active" data-zh="非常活跃">Very active</option>
     </select><br>
 
-    <label for="bodyFat">Body Fat Rate(%):</label>
-    <input type="number" id="bodyFat" name="bodyFat" placeholder="Optionally, knowing it will make the calculation more accurate"><br>
+    <label for="bodyFat" data-en="Body Fat Rate(%):" data-zh="体脂率(%)：">Body Fat Rate(%):</label>
+    <input type="number" id="bodyFat" name="bodyFat" placeholder="Optionally, knowing it will make the calculation more accurate" 
+    data-en="Optionally, knowing it will make the calculation more accurate" 
+    data-zh="可选项，填写会提高计算精确度"><br>
 
-    <label for="fitnessGoal">Fitness goals (to calculate your recommended calories):</label>
+    <label for="fitnessGoal" data-en="Fitness goals (to calculate your recommended calories):" data-zh="健身目标（用于计算建议热量摄入）：">
+      Fitness goals (to calculate your recommended calories):
+    </label>
     <select name="fitnessGoal" id="fitnessGoal" required>
-      <option value="loseWeight">Fat reduction (TDEE×80% of calories per day)</option>
-      <option value="maintain">Stay in shape (TDEE x 100% calories per day)</option>
-      <option value="gainMuscle">Gain muscle (TDEE×120% calories per day)</option>
+      <option value="loseWeight" data-en="Fat reduction (TDEE×80% of calories per day)" data-zh="减脂 (TDEE×80%每日热量)">Fat reduction</option>
+      <option value="maintain" data-en="Stay in shape (TDEE x 100% calories per day)" data-zh="保持体型 (TDEE x 100%每日热量)">Stay in shape</option>
+      <option value="gainMuscle" data-en="Gain muscle (TDEE×120% calories per day)" data-zh="增肌 (TDEE×120%每日热量)">Gain muscle</option>
     </select><br>
 
-    <button type="submit">Calculate TDEE</button>
-
-    <button class="search-btn" onclick="window.location.href='search.html'">Check ingredient calories</button>
-
+    <button type="submit" data-en="Calculate TDEE" data-zh="计算TDEE">Calculate TDEE</button>
+    <button 
+    type="button" 
+    class="search-btn" 
+    onclick="redirectToSearch()" 
+    data-en="Check calories" 
+    data-zh="查询热量">
+  </button>
+  
+  <script>
+    function initializeLanguage() {
+      const defaultLanguage = 'en'; // 默认语言
+      const language = document.documentElement.lang || defaultLanguage;
+  
+      // 初始化按钮文字
+      const buttons = document.querySelectorAll('[data-en][data-zh]');
+      buttons.forEach(button => {
+        button.innerText = language === 'zh' 
+          ? button.getAttribute('data-zh') 
+          : button.getAttribute('data-en');
+      });
+  
+      // 设置文档语言属性
+      document.documentElement.lang = language;
+    }
+  
+    function redirectToSearch() {
+      const language = document.documentElement.lang; // 获取当前语言
+      window.location.href = `search.html?language=${language}`;
+    }
+    // 初始化页面语言显示
+    initializeLanguage();
+  </script>
+  
+  
 
   </form>
 
-
   <script>
+    // 计算 TDEE
     function calculateTDEE() {
       const weight = document.getElementById('weight').value;
       const height = document.getElementById('height').value;
@@ -60,7 +102,7 @@
       const gender = document.getElementById('gender').value;
       const activity = document.getElementById('activity').value;
       const bodyFat = document.getElementById('bodyFat').value;
-      const fitnessGoal = document.getElementById('fitnessGoal').value;  // 取得健身目标值
+      const fitnessGoal = document.getElementById('fitnessGoal').value;
 
       let bmr;
       if (bodyFat) {
@@ -81,11 +123,23 @@
       }
 
       // 重定向到 recommend.html，并传递 tdee 和 fitnessGoal
-      window.location.href = `recommend.html?tdee=${Math.round(tdee)}&fitnessGoal=${encodeURIComponent(fitnessGoal)}`;
+      const language = document.documentElement.lang;  // 获取当前语言
+      window.location.href = `recommend.html?tdee=${Math.round(tdee)}&fitnessGoal=${encodeURIComponent(fitnessGoal)}&language=${language}`;
     }
-    
 
+    // 切换语言
+    function switchLanguage(language) {
+      document.documentElement.lang = language;  // 更新页面语言
+
+      const elements = document.querySelectorAll('[data-en][data-zh]');
+      elements.forEach(el => {
+        if (el.tagName === 'INPUT' && el.hasAttribute('placeholder')) {
+          el.setAttribute('placeholder', language === 'zh' ? el.getAttribute('data-zh') : el.getAttribute('data-en'));
+        } else {
+          el.innerText = language === 'zh' ? el.getAttribute('data-zh') : el.getAttribute('data-en');
+        }
+      });
+    }
   </script>
-
 </body>
 </html>
