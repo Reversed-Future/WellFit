@@ -43,6 +43,11 @@
       </div>
       <div id="recipeResultsContainer" class="results-container"></div>
     </div>
+
+    <!-- 返回主页按钮 -->
+    <div class="footer">
+      <a href="index.html?language=en" class="back-button" data-en="Return to Home" data-zh="返回主页"></a>
+    </div>
   </div>
 
   <script>
@@ -62,6 +67,14 @@
           el.innerText = language === 'zh' ? el.getAttribute('data-zh') : el.getAttribute('data-en');
         }
       });
+
+      // 更新返回按钮链接语言
+      const backButton = document.querySelector('.back-button');
+      if (backButton) {
+        const href = new URL(backButton.getAttribute('href'), window.location.href);
+        href.searchParams.set('language', language);
+        backButton.setAttribute('href', href.toString());
+      }
     }
 
     // 动态初始化页面语言

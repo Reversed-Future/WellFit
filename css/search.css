@@ -62,3 +62,22 @@ body {
     background-color: #45a049;
   }
   
+  .footer {
+    text-align: center;
+    margin-top: 20px;
+  }
+  .back-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+  }
+  .back-button:hover {
+    background-color: #45a049;
+  }
+  

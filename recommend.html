@@ -79,7 +79,6 @@
       const elements = document.querySelectorAll('[data-en][data-zh]');
       elements.forEach(el => {
         if (el.children.length > 0) {
-          // 只修改不包含动态内容的部分
           el.firstChild.nodeValue = language === 'zh' ? el.getAttribute('data-zh') : el.getAttribute('data-en');
         } else {
           el.innerText = language === 'zh' ? el.getAttribute('data-zh') : el.getAttribute('data-en');
@@ -92,7 +91,6 @@
       const fitnessGoal = getParameterByName('fitnessGoal');
       const language = getParameterByName('language') || 'en';
 
-      // 切换语言
       switchLanguage(language);
 
       if (tdee) {
@@ -121,9 +119,9 @@
           : (fitnessGoal === 'loseWeight' ? 'Lose Weight' : 'Gain Muscle');
         document.getElementById('goalValue').innerText = goalDisplay;
 
-        await loadMealSuggestions('breakfast', breakfastCaloriesMin, breakfastCaloriesMax);
-        await loadMealSuggestions('lunch', lunchCaloriesMin, lunchCaloriesMax);
-        await loadMealSuggestions('dinner', dinnerCaloriesMin, dinnerCaloriesMax);
+        await loadMealSuggestions('breakfast', breakfastCaloriesMin, breakfastCaloriesMax, language);
+        await loadMealSuggestions('lunch', lunchCaloriesMin, lunchCaloriesMax, language);
+        await loadMealSuggestions('dinner', dinnerCaloriesMin, dinnerCaloriesMax, language);
       } else {
         document.querySelector('.summary').innerHTML = language === 'zh' 
           ? '<p>错误：未提供 TDEE 值。</p>' 
@@ -131,20 +129,32 @@
       }
     }
 
-    async function loadMealSuggestions(mealType, minCalories, maxCalories) {
+    async function loadMealSuggestions(mealType, minCalories, maxCalories, language) {
       const response = await fetch(`/get-recipes?mealType=${mealType}&minCalories=${minCalories}&maxCalories=${maxCalories}`);
       const recipes = await response.json();
       const recipesList = document.getElementById(`${mealType}Recipes`);
 
-      recipes.forEach(recipe => {
-        const recipeItem = document.createElement('button');
-        recipeItem.classList.add('recipe-item');
-        recipeItem.innerHTML = `<p>${recipe.name} - ${Math.round(recipe.calories)} kcal</p>`;
-        
-        recipeItem.onclick = () => toggleSelection(mealType, recipe.name, recipeItem);
+      recipesList.innerHTML = ''; // 确保清空旧的选项
 
-        recipesList.appendChild(recipeItem);
-      });
+      if (recipes.length > 0) {
+        recipes.forEach(recipe => {
+          const recipeItem = document.createElement('button');
+          recipeItem.classList.add('recipe-item');
+          recipeItem.innerHTML = `<p>${recipe.name} - ${Math.round(recipe.calories)} kcal</p>`;
+          
+          recipeItem.onclick = () => toggleSelection(mealType, recipe.name, recipeItem);
+
+          recipesList.appendChild(recipeItem);
+        });
+      } else {
+        const noRecipeItem = document.createElement('button');
+        noRecipeItem.classList.add('recipe-item');
+        noRecipeItem.innerHTML = `<p>${language === 'zh' ? '没有合适的菜谱' : 'No Suitable Recipe'}</p>`;
+        
+        noRecipeItem.onclick = () => toggleSelection(mealType, noRecipeItem.innerText, noRecipeItem);
+
+        recipesList.appendChild(noRecipeItem);
+      }
     }
 
     function toggleSelection(mealType, recipeName, element) {
@@ -162,34 +172,31 @@
     }
 
     function confirmSelection() {
-  const language = getParameterByName('language') || 'en';
-  const mealLabels = {
-    breakfast: language === 'zh' ? '早餐' : 'Breakfast',
-    lunch: language === 'zh' ? '午餐' : 'Lunch',
-    dinner: language === 'zh' ? '晚餐' : 'Dinner',
-  };
+      const language = getParameterByName('language') || 'en';
+      const mealLabels = {
+        breakfast: language === 'zh' ? '早餐' : 'Breakfast',
+        lunch: language === 'zh' ? '午餐' : 'Lunch',
+        dinner: language === 'zh' ? '晚餐' : 'Dinner',
+      };
 
-  if (selectedRecipes.breakfast && selectedRecipes.lunch && selectedRecipes.dinner) {
-    const confirmationText = `
-      ${mealLabels.breakfast}: ${selectedRecipes.breakfast} <br>
-      ${mealLabels.lunch}: ${selectedRecipes.lunch} <br>
-      ${mealLabels.dinner}: ${selectedRecipes.dinner}
-    `;
-    document.getElementById("selectedRecipes").innerHTML = confirmationText;
-    document.getElementById("confirmationModal").style.display = "block";
-  } else {
-    alert(language === 'zh' 
-      ? "请为每顿饭选择一个食谱。" 
-      : "Please select one recipe for each meal.");
-  }
-}
-
-
-    function closeModal() {
-      document.getElementById("confirmationModal").style.display = "none";
+      if (selectedRecipes.breakfast && selectedRecipes.lunch && selectedRecipes.dinner) {
+        const confirmationText = `
+          ${mealLabels.breakfast}: ${selectedRecipes.breakfast} <br>
+          ${mealLabels.lunch}: ${selectedRecipes.lunch} <br>
+          ${mealLabels.dinner}: ${selectedRecipes.dinner}
+        `;
+        document.getElementById('selectedRecipes').innerHTML = confirmationText;
+        document.getElementById('confirmationModal').style.display = 'block';
+      } else {
+        alert(language === 'zh' ? '请为每一餐选择一个菜谱。' : 'Please select a recipe for each meal.');
+      }
     }
 
-    window.onload = loadRecipes;
+    function closeModal() {
+      document.getElementById('confirmationModal').style.display = 'none';
+    }
+
+    loadRecipes();
   </script>
 </body>
 </html>
