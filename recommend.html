@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Recommended Recipes</title>
-  <link rel="stylesheet" href="./css/recommend.css"> 
+  <link rel="stylesheet" href="./css/recommend.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 </head>
 <body>
   <div class="container">
@@ -69,6 +70,24 @@
 
   <script>
     const selectedRecipes = { breakfast: null, lunch: null, dinner: null };
+    let recipeLinks = {};
+
+    // 加载 CSV 数据
+    async function loadRecipeLinks() {
+      const response = await fetch('recipe/links/alllinks.csv'); // 路径调整为你的 CSV 文件路径
+      const csvText = await response.text();
+      const parsedData = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+
+      // 将 CSV 数据存储到 recipeLinks 中，使用中文名作为键
+      parsedData.data.forEach(row => {
+        recipeLinks[row['中文']] = row['Links'];
+      });
+    }
+
+    function getRecipeLink(recipeName) {
+      // 从 recipeLinks 中获取对应的链接
+      return recipeLinks[recipeName] || '#'; // 如果没有找到链接，返回默认 #
+    }
 
     function getParameterByName(name) {
       const urlParams = new URLSearchParams(window.location.search);
@@ -134,13 +153,18 @@
       const recipes = await response.json();
       const recipesList = document.getElementById(`${mealType}Recipes`);
 
-      recipesList.innerHTML = ''; // 确保清空旧的选项
+      recipesList.innerHTML = ''; // 清空旧的选项
 
       if (recipes.length > 0) {
         recipes.forEach(recipe => {
           const recipeItem = document.createElement('button');
           recipeItem.classList.add('recipe-item');
-          recipeItem.innerHTML = `<p>${recipe.name} - ${Math.round(recipe.calories)} kcal</p>`;
+          
+          // 显示食谱名称、热量、图片、外部链接
+          recipeItem.innerHTML = `
+            <img src="image/${encodeURIComponent(recipe.name)}.png" alt="${recipe.name}" class="recipe-image"/>
+            <p>${recipe.name} - ${Math.round(recipe.calories)} kcal</p>
+          `;
           
           recipeItem.onclick = () => toggleSelection(mealType, recipe.name, recipeItem);
 
@@ -171,32 +195,79 @@
       }
     }
 
-    function confirmSelection() {
-      const language = getParameterByName('language') || 'en';
-      const mealLabels = {
-        breakfast: language === 'zh' ? '早餐' : 'Breakfast',
-        lunch: language === 'zh' ? '午餐' : 'Lunch',
-        dinner: language === 'zh' ? '晚餐' : 'Dinner',
-      };
+// 在确认选择时更新弹窗内容
+function confirmSelection() {
+  const selected = Object.entries(selectedRecipes)
+    .filter(([mealType, recipeName]) => recipeName !== null) // 只保留已选择的食谱
+    .map(([mealType, recipeName]) => {
+      // 获取食谱链接
+      const link = getRecipeLink(recipeName);
+      // 获取食谱图片路径
+      const imageUrl = `image/${encodeURIComponent(recipeName)}.png`;
+      return { mealType, recipeName, link, imageUrl };
+    });
 
-      if (selectedRecipes.breakfast && selectedRecipes.lunch && selectedRecipes.dinner) {
-        const confirmationText = `
-          ${mealLabels.breakfast}: ${selectedRecipes.breakfast} <br>
-          ${mealLabels.lunch}: ${selectedRecipes.lunch} <br>
-          ${mealLabels.dinner}: ${selectedRecipes.dinner}
-        `;
-        document.getElementById('selectedRecipes').innerHTML = confirmationText;
-        document.getElementById('confirmationModal').style.display = 'block';
-      } else {
-        alert(language === 'zh' ? '请为每一餐选择一个菜谱。' : 'Please select a recipe for each meal.');
-      }
-    }
+  const confirmationText = selected.length > 0 
+    ? `
+      <div style="display: flex; justify-content: space-between; padding: 20px;">
+        ${getMealButton('breakfast', selected)}
+        ${getMealButton('lunch', selected)}
+        ${getMealButton('dinner', selected)}
+      </div>
+    `
+    : (document.documentElement.lang === 'zh' ? '没有选择任何食谱。' : 'No recipes selected.');
 
-    function closeModal() {
-      document.getElementById('confirmationModal').style.display = 'none';
-    }
+  document.getElementById('selectedRecipes').innerHTML = confirmationText;
+  document.getElementById('confirmationModal').style.display = 'block';
+}
 
-    loadRecipes();
+// 获取每餐的按钮内容
+function getMealButton(mealType, selected) {
+  const meal = selected.find(item => item.mealType === mealType);
+  const mealLabel = {
+    breakfast: document.documentElement.lang === 'zh' ? '早餐' : 'Breakfast',
+    lunch: document.documentElement.lang === 'zh' ? '午餐' : 'Lunch',
+    dinner: document.documentElement.lang === 'zh' ? '晚餐' : 'Dinner'
+  }[mealType];
+
+  if (meal) {
+    return `
+      <button 
+        class="meal-button" 
+        style="flex: 1; text-align: center; padding: 10px; margin: 5px; cursor: pointer;"
+        onclick="window.open('${meal.link}', '_blank')"
+      >
+        <img 
+          src="${meal.imageUrl}" 
+          alt="${meal.recipeName}" 
+          style="width: 100px; height: 100px; display: block; margin: 0 auto;" 
+        />
+        <p style="margin-top: 10px;">${mealLabel}: ${meal.recipeName}</p>
+      </button>
+    `;
+  } else {
+    return `
+      <div 
+        class="meal-button" 
+        style="flex: 1; text-align: center; padding: 10px; margin: 5px; background-color: #f0f0f0;"
+      >
+        <p>${mealLabel}: ${document.documentElement.lang === 'zh' ? '没有选择食谱' : 'No recipe selected'}</p>
+      </div>
+    `;
+  }
+}
+
+
+  // 关闭弹窗
+  function closeModal() {
+    document.getElementById('confirmationModal').style.display = 'none';
+  }
+  
+    // 加载页面时，先加载 CSV 数据
+    window.onload = async () => {
+      await loadRecipeLinks();
+      loadRecipes();
+    };
   </script>
 </body>
 </html>

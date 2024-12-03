@@ -137,3 +137,49 @@ button:hover {
 .modal-content button {
   margin-top: 20px;
 }
+
+/* 弹窗图片样式 */
+.recipe-image {
+  max-width: 100%;        /* 图片宽度最大为容器宽度 */
+  max-height: 200px;      /* 设置图片最大高度 */
+  object-fit: contain;    /* 保持图片的宽高比例 */
+  margin: 10px 0;         /* 设置上下间距 */
+  display: block;         /* 让图片呈现为块级元素，避免其与其他元素并排 */
+}
+
+.meal-button {
+  border: none;
+  border-radius: 8px;
+  background-color: #4CAF50; /* 默认底色 */
+  color: white;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  padding: 10px;
+  margin: 5px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.meal-button:hover {
+  background-color: #45a049; /* 悬停颜色 */
+  transform: scale(1.05);
+}
+
+.meal-button img {
+  border-radius: 4px;
+  display: block;
+  margin: 0 auto;
+  width: 100px;
+  height: 100px;
+}
+
+.meal-button p {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
