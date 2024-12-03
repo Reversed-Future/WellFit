@@ -74,15 +74,16 @@
 
     // 加载 CSV 数据
     async function loadRecipeLinks() {
-      const response = await fetch('recipe/links/alllinks.csv'); // 路径调整为你的 CSV 文件路径
-      const csvText = await response.text();
-      const parsedData = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+    const response = await fetch('recipe/links/alllinks.csv'); // 路径调整为你的 CSV 文件路径
+    const csvText = await response.text();
+    const parsedData = Papa.parse(csvText, { header: true, skipEmptyLines: true });
 
-      // 将 CSV 数据存储到 recipeLinks 中，使用中文名作为键
-      parsedData.data.forEach(row => {
-        recipeLinks[row['中文']] = row['Links'];
-      });
-    }
+    // 将 CSV 数据存储到 recipeLinks 中，使用中文名作为键
+    parsedData.data.forEach(row => {
+      recipeLinks[row['中文']] = { link: row['Links'], en: row['English'] };
+    });
+  }
+
 
     function getRecipeLink(recipeName) {
       // 从 recipeLinks 中获取对应的链接
@@ -149,37 +150,43 @@
     }
 
     async function loadMealSuggestions(mealType, minCalories, maxCalories, language) {
-      const response = await fetch(`/get-recipes?mealType=${mealType}&minCalories=${minCalories}&maxCalories=${maxCalories}`);
-      const recipes = await response.json();
-      const recipesList = document.getElementById(`${mealType}Recipes`);
+  const response = await fetch(`/get-recipes?mealType=${mealType}&minCalories=${minCalories}&maxCalories=${maxCalories}`);
+  const recipes = await response.json();
+  const recipesList = document.getElementById(`${mealType}Recipes`);
 
-      recipesList.innerHTML = ''; // 清空旧的选项
+  recipesList.innerHTML = ''; // 清空旧的选项
 
-      if (recipes.length > 0) {
-        recipes.forEach(recipe => {
-          const recipeItem = document.createElement('button');
-          recipeItem.classList.add('recipe-item');
-          
-          // 显示食谱名称、热量、图片、外部链接
-          recipeItem.innerHTML = `
-            <img src="image/${encodeURIComponent(recipe.name)}.png" alt="${recipe.name}" class="recipe-image"/>
-            <p>${recipe.name} - ${Math.round(recipe.calories)} kcal</p>
-          `;
-          
-          recipeItem.onclick = () => toggleSelection(mealType, recipe.name, recipeItem);
+  if (recipes.length > 0) {
+    recipes.forEach(recipe => {
+      const recipeNameZh = recipe.name;
+      const recipeNameDisplay = language === 'zh' 
+        ? recipeNameZh 
+        : recipeLinks[recipeNameZh]?.en || recipeNameZh;
 
-          recipesList.appendChild(recipeItem);
-        });
-      } else {
-        const noRecipeItem = document.createElement('button');
-        noRecipeItem.classList.add('recipe-item');
-        noRecipeItem.innerHTML = `<p>${language === 'zh' ? '没有合适的菜谱' : 'No Suitable Recipe'}</p>`;
-        
-        noRecipeItem.onclick = () => toggleSelection(mealType, noRecipeItem.innerText, noRecipeItem);
+      const recipeItem = document.createElement('button');
+      recipeItem.classList.add('recipe-item');
 
-        recipesList.appendChild(noRecipeItem);
-      }
-    }
+      // 显示食谱名称、热量、图片
+      recipeItem.innerHTML = `
+        <img src="image/${encodeURIComponent(recipeNameZh)}.png" alt="${recipeNameDisplay}" class="recipe-image"/>
+        <p>${recipeNameDisplay} - ${Math.round(recipe.calories)} kcal</p>
+      `;
+
+      recipeItem.onclick = () => toggleSelection(mealType, recipeNameZh, recipeItem);
+
+      recipesList.appendChild(recipeItem);
+    });
+  } else {
+    const noRecipeItem = document.createElement('button');
+    noRecipeItem.classList.add('recipe-item');
+    noRecipeItem.innerHTML = `<p>${language === 'zh' ? '没有合适的菜谱' : 'No Suitable Recipe'}</p>`;
+
+    noRecipeItem.onclick = () => toggleSelection(mealType, noRecipeItem.innerText, noRecipeItem);
+
+    recipesList.appendChild(noRecipeItem);
+  }
+}
+
 
     function toggleSelection(mealType, recipeName, element) {
       if (element.classList.contains("selected")) {
@@ -197,17 +204,19 @@
 
 // 在确认选择时更新弹窗内容
 function confirmSelection() {
+  const language = document.documentElement.lang || 'zh'; // 使用已设置的语言
   const selected = Object.entries(selectedRecipes)
-    .filter(([mealType, recipeName]) => recipeName !== null) // 只保留已选择的食谱
-    .map(([mealType, recipeName]) => {
-      // 获取食谱链接
-      const link = getRecipeLink(recipeName);
-      // 获取食谱图片路径
-      const imageUrl = `image/${encodeURIComponent(recipeName)}.png`;
-      return { mealType, recipeName, link, imageUrl };
+    .filter(([mealType, recipeNameZh]) => recipeNameZh !== null) // 只保留已选择的食谱
+    .map(([mealType, recipeNameZh]) => {
+      const link = recipeLinks[recipeNameZh]?.link || '#';
+      const recipeNameDisplay = language === 'zh'
+        ? recipeNameZh
+        : recipeLinks[recipeNameZh]?.en || recipeNameZh;
+      const imageUrl = `image/${encodeURIComponent(recipeNameZh)}.png`;
+      return { mealType, recipeNameDisplay, link, imageUrl };
     });
 
-  const confirmationText = selected.length > 0 
+  const confirmationText = selected.length > 0
     ? `
       <div style="display: flex; justify-content: space-between; padding: 20px;">
         ${getMealButton('breakfast', selected)}
@@ -217,7 +226,13 @@ function confirmSelection() {
     `
     : (document.documentElement.lang === 'zh' ? '没有选择任何食谱。' : 'No recipes selected.');
 
-  document.getElementById('selectedRecipes').innerHTML = confirmationText;
+  // 添加健康建议链接
+  const healthAdviceText = language === 'zh' 
+    ? '<p style="text-align: center;"><a href="https://www.eatingwell.com/category/7886691/healthy-lifestyle/" target="_blank" style="color: #007BFF; text-decoration: none;">这有一些给你的健康建议</a></p>'
+    : '<p style="text-align: center;"><a href="https://www.eatingwell.com/category/7886691/healthy-lifestyle/" target="_blank" style="color: #007BFF; text-decoration: none;">Here are some healthy lifestyle tips for you</a></p>';
+
+  // 合并确认内容和健康建议
+  document.getElementById('selectedRecipes').innerHTML = confirmationText + healthAdviceText;
   document.getElementById('confirmationModal').style.display = 'block';
 }
 
@@ -239,10 +254,10 @@ function getMealButton(mealType, selected) {
       >
         <img 
           src="${meal.imageUrl}" 
-          alt="${meal.recipeName}" 
+          alt="${meal.recipeNameDisplay}" 
           style="width: 100px; height: 100px; display: block; margin: 0 auto;" 
         />
-        <p style="margin-top: 10px;">${mealLabel}: ${meal.recipeName}</p>
+        <p style="margin-top: 10px;">${mealLabel}: ${meal.recipeNameDisplay}</p>
       </button>
     `;
   } else {
@@ -256,6 +271,7 @@ function getMealButton(mealType, selected) {
     `;
   }
 }
+
 
 
   // 关闭弹窗

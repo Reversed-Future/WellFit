@@ -81,3 +81,10 @@ body {
     background-color: #45a049;
   }
   
+  body {
+    background-image: url('../image/background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
