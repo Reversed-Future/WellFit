@@ -4,7 +4,7 @@ function getLanguageFromUrl() {
   return urlParams.get('language') || 'en';
 }
 
-// 定义多语言文本
+// 定义双语文本
 const languageTexts = {
   en: {
     enterIngredient: "Please enter an ingredient name.",

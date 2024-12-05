@@ -11,7 +11,7 @@
   <div class="container">
     <h1 id="pageTitle" data-en="Your Recommended Recipes" data-zh="您的推荐食谱"></h1>
     <div class="summary">
-      <p id="tdeeLabel" data-en="Your TDEE is:" data-zh="您的TDEE是：">
+      <p id="tdeeLabel" data-en="Your Recommended TDEE is:" data-zh="您的建议TDEE是：">
         <span id="tdeeValue"></span> kcal
       </p>
       <p id="goalLabel" data-en="Your Fitness Goal is:" data-zh="你的健身目标是：">
@@ -74,11 +74,11 @@
 
     // 加载 CSV 数据
     async function loadRecipeLinks() {
-    const response = await fetch('recipe/links/alllinks.csv'); // 路径调整为你的 CSV 文件路径
+    const response = await fetch('recipe/links/alllinks.csv');
     const csvText = await response.text();
     const parsedData = Papa.parse(csvText, { header: true, skipEmptyLines: true });
 
-    // 将 CSV 数据存储到 recipeLinks 中，使用中文名作为键
+    // 将 CSV 数据存储到 recipeLinks 中
     parsedData.data.forEach(row => {
       recipeLinks[row['中文']] = { link: row['Links'], en: row['English'] };
     });

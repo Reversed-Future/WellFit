@@ -80,8 +80,8 @@ h1 {
 .recipe-item {
   padding: 10px;
   margin: 5px 0;
-  background-color: #f9f9f9; /* 浅灰色背景 */
-  color: #333; /* 黑色字体 */
+  background-color: #f9f9f9;
+  color: #333;
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   cursor: pointer;
@@ -89,8 +89,8 @@ h1 {
 }
 
 .recipe-item.selected {
-  background-color: #90caf9; /* 选中时蓝色背景 */
-  color: white; /* 选中时白色字体 */
+  background-color: #90caf9;
+  color: white;
 }
 
 button {
@@ -140,17 +140,17 @@ button:hover {
 
 /* 弹窗图片样式 */
 .recipe-image {
-  max-width: 100%;        /* 图片宽度最大为容器宽度 */
-  max-height: 200px;      /* 设置图片最大高度 */
-  object-fit: contain;    /* 保持图片的宽高比例 */
-  margin: 10px 0;         /* 设置上下间距 */
-  display: block;         /* 让图片呈现为块级元素，避免其与其他元素并排 */
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  margin: 10px 0;
+  display: block;         
 }
 
 .meal-button {
   border: none;
   border-radius: 8px;
-  background-color: #4CAF50; /* 默认底色 */
+  background-color: #4CAF50;
   color: white;
   transition: background-color 0.3s ease, transform 0.2s ease;
   padding: 10px;
@@ -160,7 +160,7 @@ button:hover {
 }
 
 .meal-button:hover {
-  background-color: #45a049; /* 悬停颜色 */
+  background-color: #45a049;
   transform: scale(1.05);
 }
 

@@ -31,11 +31,11 @@ async function readRecipes(mealType) {
       .pipe(csv())
       .on('data', (row) => {
         const { 'Recipe Name': name, 'Total Calories': calories } = row;
-        console.log(`读取菜谱: ${name}, 热量: ${calories}`);  // 添加调试信息
+        console.log(`读取菜谱: ${name}, 热量: ${calories}`);
         recipes.push({ name, calories: parseFloat(calories) });
       })
       .on('end', () => {
-        console.log(`完成读取 ${mealType} 菜谱，共 ${recipes.length} 道菜`);  // 输出读取的总数
+        console.log(`完成读取 ${mealType} 菜谱，共 ${recipes.length} 道菜`);
         resolve(recipes);
       })
       .on('error', reject);
@@ -63,9 +63,8 @@ async function calculateRecipeCalories(recipePath) {
 
 
 app.post('/submit-data', (req, res) => {
-  const { age, weight, height, gender, activity, fitnessGoal } = req.body; // 确保这里正确解构
+  const { age, weight, height, gender, activity, fitnessGoal } = req.body;
 
-  // 添加调试信息，检查接收的参数
   console.log("Received fitness goal:", fitnessGoal);
 
   // 计算 TDEE
@@ -188,11 +187,11 @@ app.get('/search-calories', (req, res) => {
 app.get('/search-recipes', (req, res) => {
   const searchQuery = req.query.query.toLowerCase();
   const results = [];
-  const meals = ['breakfast', 'lunch', 'dinner']; // 假设有三类菜谱：早餐、午餐和晚餐
+  const meals = ['breakfast', 'lunch', 'dinner'];
 
   // 遍历所有的 meal 类型（早餐、午餐、晚餐）
   meals.forEach(meal => {
-    const filePath = `./recipe/${meal}/${meal}.csv`; // 每个meal对应一个csv文件
+    const filePath = `./recipe/${meal}/${meal}.csv`;
 
     // 读取 CSV 文件并匹配菜谱名称
     fs.createReadStream(filePath)
@@ -203,15 +202,13 @@ app.get('/search-recipes', (req, res) => {
         // 如果菜谱名称包含搜索查询，则添加到结果中
         if (recipeName.includes(searchQuery)) {
           results.push({
-            mealType: meal, // 早餐、午餐、晚餐
+            mealType: meal,
             recipeName: row['Recipe Name'], // 菜谱名称
             calories: row['Total Calories'] // 热量
           });
         }
       })
       .on('end', () => {
-        // 如果有多个 meal 文件，所有的 'end' 事件都可能同时触发，这会导致响应重复
-        // 所以我们可以在所有的 CSV 文件读取完成后返回响应
         if (meal === meals[meals.length - 1]) {
           res.json(results.length > 0 ? results : { message: 'No matching recipes found' });
         }
