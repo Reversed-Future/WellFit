@@ -101,11 +101,11 @@
 
       let bmr;
       if (bodyFat) {
-        bmr = 370 + 21.6 * (1 - bodyFat / 100) * weight;
+        bmr = 370 + 21.6 * (1 - bodyFat / 100) * weight;        // Katch-McArdle
       } else if (gender === 'male') {
         bmr = 10 * weight + 6.25 * height - 5 * age + 5;
       } else {
-        bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+        bmr = 10 * weight + 6.25 * height - 5 * age - 161;        // Mifflin-St. Jeor
       }
 
       let tdee = bmr * activity;
